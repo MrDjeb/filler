@@ -64,6 +64,7 @@ func GetParse(category_id int) []string {
 		row := fmt.Sprintf("('%s', '%s', %s, '%s', '%s', 4.%d, %d),",
 			id.String(), name, price, photoName, "Самый лучший среди товаров на рынке "+name, rating, category_id)
 		rows = append(rows, row)
+		fmt.Print(".")
 	})
 
 	rows[len(rows)-1] = replaceLastRune(rows[len(rows)-1], ';')
@@ -71,13 +72,13 @@ func GetParse(category_id int) []string {
 }
 
 func Filler(category_id int) {
-	f, err := os.Create("./build/sql/filler_" + catMap[category_id] + ".sql")
+	f, err := os.Create("./sql/filler_" + catMap[category_id] + ".sql")
 	if err != nil {
 		log.Fatal(err)
 	}
 	// remember to close the file
 	defer f.Close()
-	lines := GetParse(5)
+	lines := GetParse(category_id)
 	preCMD := `INSERT INTO product (id, name, price, imgsrc, description, rating, category_id)
 	VALUES`
 	f.WriteString(preCMD)
@@ -87,7 +88,6 @@ func Filler(category_id int) {
 			log.Fatal(err)
 		}
 	}
-	fmt.Println(GetParse(category_id))
 }
 
 func WritePhoto(url string, fileName string) {
@@ -97,7 +97,7 @@ func WritePhoto(url string, fileName string) {
 	}
 
 	defer response.Body.Close()
-	name := "photos/" + fileName
+	name := "./data/photos/" + fileName
 	file, err := os.Create(name)
 	if err != nil {
 		log.Fatal(err)

@@ -1,0 +1,6 @@
+*.bin
+*.jpeg
+*.png
+*.jpg
+*.sql
+/data/photos/
