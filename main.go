@@ -32,18 +32,27 @@ import (
 	    (8, 'Пылесосы', 5),
 		(9, 'Мебель', 1),
 		(91, 'Стулья', 9),
-		(92, 'Рабочии столы', 9),
+		(92, 'Рабочие столы', 9),
 		(93, 'Диваны', 9),
-		(94, 'Кресла', 9);
+		(94, 'Кресла', 9),
+		(10, 'Канцелярия', 1),
+		(101, 'Тетради', 10),
+		(102, 'Письменные принадлежности', 10),
+		(103, 'Пеналы', 10),
+		(104, 'Клей', 10);
 */
 var catMap map[int]string = map[int]string{
-	6:  "holodilniki",
-	7:  "stiralnye-mashiny",
-	8:  "pylesosy",
-	91: "stulya",
-	92: "rabochie-stoly",
-	93: "divany",
-	94: "kresla",
+	6:   "holodilniki",
+	7:   "stiralnye-mashiny",
+	8:   "pylesosy",
+	91:  "stulya",
+	92:  "rabochie-stoly",
+	93:  "divany",
+	94:  "kresla",
+	101: "tetradi",
+	102: "pismennye-prinadlezhnosti",
+	103: "penaly",
+	104: "kley-455773",
 }
 
 func GetParse(category_id int) []string {
