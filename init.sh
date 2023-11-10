@@ -1,5 +1,4 @@
 #!/bin/bash
-cp -r /home/ubuntu/filler/photos/tetradi/* /data/public/static/images/
-cp -r /home/ubuntu/filler/photos/pismennye-prinadlezhnosti/* /data/public/static/images/
-cp -r /home/ubuntu/filler/photos/penaly/* /data/public/static/images/
-cp -r /home/ubuntu/filler/photos/kley-455773/* /data/public/static/images/
+cp -r /home/ubuntu/filler/photos/nintendo/* /data/public/static/images/
+cp -r /home/ubuntu/filler/photos/xbox/* /data/public/static/images/
+cp -r /home/ubuntu/filler/photos/playstation/* /data/public/static/images/

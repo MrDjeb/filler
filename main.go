@@ -39,7 +39,11 @@ import (
 		(101, 'Тетради', 10),
 		(102, 'Письменные принадлежности', 10),
 		(103, 'Пеналы', 10),
-		(104, 'Клей', 10);
+		(104, 'Клей', 10),
+		(11, 'Товары для геймеров', 1),
+		(111, 'Nintendo', 11),
+		(112, 'Xbox', 11),
+		(113, 'PlayStation', 11);
 */
 var catMap map[int]string = map[int]string{
 	6:   "holodilniki",
@@ -53,6 +57,9 @@ var catMap map[int]string = map[int]string{
 	102: "pismennye-prinadlezhnosti",
 	103: "penaly",
 	104: "kley-455773",
+	111: "nintendo",
+	112: "xbox",
+	113: "playstation",
 }
 
 func GetParse(category_id int) []string {
