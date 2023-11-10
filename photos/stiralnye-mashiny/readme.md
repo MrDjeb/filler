@@ -1,1 +1,0 @@
-cp -r /home/ubuntu/filler/photos/stiralnye-mashiny/* /data/public/static/images/

@@ -1,1 +1,0 @@
-cp -r /home/ubuntu/filler/photos/pylesosy/* /data/public/static/images/
