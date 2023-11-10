@@ -59,7 +59,7 @@ func GetParse(category_id int) []string {
 		price := strings.Map(getNum, price_str)
 
 		photoName := strconv.Itoa(category_id) + "-" + id.String() + filepath.Ext(imgsrc)
-		WritePhoto(imgsrc, photoName)
+		WritePhoto(imgsrc, photoName, category_id)
 
 		row := fmt.Sprintf("('%s', '%s', %s, '%s', '%s', 4.%d, %d),",
 			id.String(), name, price, photoName, "Самый лучший среди товаров на рынке "+name, rating, category_id)
@@ -90,14 +90,14 @@ func Filler(category_id int) {
 	}
 }
 
-func WritePhoto(url string, fileName string) {
+func WritePhoto(url string, fileName string, category_id int) {
 	response, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer response.Body.Close()
-	name := "/data/photos/" + fileName
+	name := "./photos/" + catMap[category_id] + "/" + fileName
 	file, err := os.Create(name)
 	if err != nil {
 		log.Fatal(err)
