@@ -34,7 +34,7 @@ import (
 		(91, 'Стулья', 9),
 		(92, 'Рабочии столы', 9),
 		(93, 'Диваны', 9),
-		(94, 'Кресла', 9),
+		(94, 'Кресла', 9);
 */
 var catMap map[int]string = map[int]string{
 	6:  "holodilniki",
@@ -95,7 +95,7 @@ func GetParse(category_id int) []string {
 	if err != nil {
 		log.Fatalln(err)
 	}*/
-	log.Println("success pars ", "https://megamarket.ru/catalog/"+catMap[category_id]+"/")
+	fmt.Println("	success pars ", "https://megamarket.ru/catalog/"+catMap[category_id]+"/")
 	doc.Find("div.catalog-item-mobile").Each(func(i int, s *goquery.Selection) {
 		getNum := func(r rune) rune {
 			if !unicode.IsNumber(r) {
@@ -113,13 +113,17 @@ func GetParse(category_id int) []string {
 		price_str := info.Find("div.catalog-item-mobile__prices-container").Find("div.item-money").Find("div.item-price").Text()
 		review_str := info.Find("div.inner").Find("div.item-review").Find("a").Find("div.item-review-wrapper").Find("div.review-amount").Text()
 		review_ := strings.Fields(review_str)
-		if len(review_[0]) < 1 {
-			log.Fatalln("review_ Fields empty")
+		var review int
+		if len(review_) < 1 {
+			review = 95
+			//log.Println("review_ Fields empty", review_str)
+		} else {
+			review, err = strconv.Atoi(review_[0])
+			if err != nil {
+				log.Fatalln(err)
+			}
 		}
-		review, err := strconv.Atoi(review_[0])
-		if err != nil {
-			log.Fatalln(err)
-		}
+
 		rating := review % 100
 
 		price := strings.Map(getNum, price_str)
@@ -178,7 +182,7 @@ func WritePhoto(url string, fileName string, category_id int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	t := time.NewTimer(1 * time.Second)
+	t := time.NewTimer(100 * time.Millisecond)
 	<-t.C
 }
 
