@@ -19,6 +19,7 @@ import (
 )
 
 var catMap map[int]string = map[int]string{
+	7: "stiralnye-mashiny",
 	8: "pylesosy",
 }
 
@@ -113,7 +114,7 @@ func WritePhoto(url string, fileName string, category_id int) {
 }
 
 func main() {
-	Filler(8)
+	Filler(7)
 }
 
 func replaceLastRune(s string, new rune) string {
