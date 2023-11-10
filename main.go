@@ -97,7 +97,7 @@ func WritePhoto(url string, fileName string) {
 	}
 
 	defer response.Body.Close()
-	name := "./data/photos/" + fileName
+	name := "/data/photos/" + fileName
 	file, err := os.Create(name)
 	if err != nil {
 		log.Fatal(err)
