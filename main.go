@@ -95,7 +95,7 @@ func GetParse(category_id int) []string {
 	if err != nil {
 		log.Fatalln(err)
 	}*/
-
+	log.Println("success pars ", "https://megamarket.ru/catalog/"+catMap[category_id]+"/")
 	doc.Find("div.catalog-item-mobile").Each(func(i int, s *goquery.Selection) {
 		getNum := func(r rune) rune {
 			if !unicode.IsNumber(r) {
