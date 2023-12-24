@@ -238,7 +238,7 @@ func GetParse(category_id int) []string {
 
 		price := strings.Map(getNum, price_str)
 
-		photoName := strconv.Itoa(category_id) + "-" + id.String()
+		photoName := strconv.Itoa(category_id) + "-" + id.String() + ".webp"
 		err := WritePhotoWebp(imgsrc, photoName, category_id)
 		if err != nil {
 			return
@@ -338,8 +338,8 @@ func WritePhotoWebp(url string, fileName string, category_id int) error {
 		return err
 	}
 
-	name := "./images/" + fileName + filepath.Ext(url)
-	output, err := os.Create(name + ".webp")
+	name := "./images/" + fileName
+	output, err := os.Create(name)
 	if err != nil {
 		return err
 	}
