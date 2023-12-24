@@ -1,0 +1,1 @@
+go run cmd/main/main.go 1

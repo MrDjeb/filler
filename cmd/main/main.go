@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"image/jpeg"
 	"io"
 	"log"
 	"net/http"
@@ -18,6 +19,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/cdproto/dom"
 	"github.com/chromedp/chromedp"
+	"github.com/kolesa-team/go-webp/encoder"
+	"github.com/kolesa-team/go-webp/webp"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -90,6 +93,7 @@ func GetParse(category_id int) []string {
 			}
 			html, err = dom.GetOuterHTML().WithNodeID(rootNode.NodeID).Do(ctx)
 			return err
+
 		}),
 	)
 	if err != nil {
@@ -144,7 +148,7 @@ func GetParse(category_id int) []string {
 
 		price := strings.Map(getNum, price_str)
 
-		photoName := strconv.Itoa(category_id) + "-" + id.String() + filepath.Ext(imgsrc)
+		photoName := strconv.Itoa(category_id) + "-" + id.String()
 		WritePhoto(imgsrc, photoName, category_id)
 
 		row := fmt.Sprintf("('%s', '%s', %s, '%s', '%s', 4.%d, %d),",
@@ -157,13 +161,38 @@ func GetParse(category_id int) []string {
 	return rows
 }
 
-func Filler(category_id int) {
-	f, err := os.Create("./sql/filler_" + catMap[category_id] + ".sql")
+func Fill() {
+	f, err := os.Create("./one_sql/9_filler.sql")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer f.Close()
-	if err := os.MkdirAll("./photos/"+catMap[category_id]+"/", os.ModePerm); err != nil {
+	if err := os.MkdirAll("./images/", os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
+
+	t := time.NewTimer(100 * time.Millisecond)
+	for k, _ := range catMap {
+		preCMD := "INSERT INTO product (id, name, price, imgsrc, description, rating, category_id) VALUES\n"
+		f.WriteString(preCMD)
+		lines := GetParse(k)
+		for _, line := range lines {
+			_, err := f.WriteString(line + "\n")
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		<-t.C
+	}
+}
+
+func Filler(category_id int) {
+	f, err := os.Create("./sql/9_filler_" + catMap[category_id] + ".sql")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	if err := os.MkdirAll("./images/"+catMap[category_id]+"/", os.ModePerm); err != nil {
 		log.Fatal(err)
 	}
 
@@ -187,7 +216,7 @@ func WritePhoto(url string, fileName string, category_id int) {
 	}
 
 	defer response.Body.Close()
-	name := "./photos/" + catMap[category_id] + "/" + fileName
+	name := "./images/" + catMap[category_id] + "/" + fileName + filepath.Ext(url)
 	file, err := os.Create(name)
 	if err != nil {
 		log.Fatal(err)
@@ -198,12 +227,44 @@ func WritePhoto(url string, fileName string, category_id int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	t := time.NewTimer(100 * time.Millisecond)
+	t := time.NewTimer(10 * time.Millisecond)
+	<-t.C
+}
+
+func WritePhotoWebp(url string, fileName string, category_id int) {
+	response, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer response.Body.Close()
+
+	img, err := jpeg.Decode(response.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	name := "./images/" + fileName + filepath.Ext(url)
+	output, err := os.Create(name + ".webp")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer output.Close()
+
+	options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if err := webp.Encode(output, img, options); err != nil {
+		log.Fatalln(err)
+	}
+
+	t := time.NewTimer(10 * time.Millisecond)
 	<-t.C
 }
 
 func main() {
-	if len(os.Args) != 2 {
+	/*if len(os.Args) != 2 {
 		log.Fatalln("invalid len arg")
 	}
 	category_id, err := strconv.Atoi(os.Args[1])
@@ -216,7 +277,8 @@ func main() {
 	}
 
 	fmt.Println("	Start parsing <", cat, ">")
-	Filler(category_id)
+	Filler(category_id)*/
+	Fill()
 }
 
 func replaceLastRune(s string, new rune) string {

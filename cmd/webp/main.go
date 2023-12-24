@@ -19,7 +19,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
 	output, err := os.Create("photos/93-00aadf3e-bf85-439d-a376-78de2b475ffc.webp")
 	if err != nil {
 		log.Fatal(err)
