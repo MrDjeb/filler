@@ -67,6 +67,7 @@ var catMap map[int]string = map[int]string{
 
 func GetParse(category_id int) []string {
 	rows := make([]string, 20)
+	uniq := make(map[string]int)
 
 	options := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"),
@@ -127,6 +128,11 @@ func GetParse(category_id int) []string {
 		imgsrc, _ := photo.Attr("src")
 		name, _ := photo.Attr("alt")
 
+		if _, ok := uniq[name]; ok {
+			return
+		}
+		uniq[name] = 1
+
 		id := uuid.NewV4()
 
 		info := s.Find("div.item-block").Find("div.item-info")
@@ -149,19 +155,22 @@ func GetParse(category_id int) []string {
 		price := strings.Map(getNum, price_str)
 
 		photoName := strconv.Itoa(category_id) + "-" + id.String()
-		WritePhoto(imgsrc, photoName, category_id)
-
+		WritePhotoWebp(imgsrc, photoName, category_id)
+		cleanName := sanitize(name)
 		row := fmt.Sprintf("('%s', '%s', %s, '%s', '%s', 4.%d, %d),",
-			id.String(), name, price, photoName, "Самый лучший среди товаров на рынке "+name, rating, category_id)
+			id.String(), cleanName, price, photoName, "Самый лучший среди товаров на рынке "+cleanName, rating, category_id)
 		rows = append(rows, row)
 		fmt.Print(".")
 	})
-
+	fmt.Println()
 	rows[len(rows)-1] = replaceLastRune(rows[len(rows)-1], ';')
 	return rows
 }
 
 func Fill() {
+	if err := os.MkdirAll("./one_sql/", os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
 	f, err := os.Create("./one_sql/9_filler.sql")
 	if err != nil {
 		log.Fatal(err)
@@ -171,7 +180,6 @@ func Fill() {
 		log.Fatal(err)
 	}
 
-	t := time.NewTimer(100 * time.Millisecond)
 	for k, _ := range catMap {
 		preCMD := "INSERT INTO product (id, name, price, imgsrc, description, rating, category_id) VALUES\n"
 		f.WriteString(preCMD)
@@ -182,7 +190,6 @@ func Fill() {
 				log.Fatal(err)
 			}
 		}
-		<-t.C
 	}
 }
 
@@ -216,7 +223,7 @@ func WritePhoto(url string, fileName string, category_id int) {
 	}
 
 	defer response.Body.Close()
-	name := "./images/" + catMap[category_id] + "/" + fileName + filepath.Ext(url)
+	name := "./images/" + fileName + filepath.Ext(url)
 	file, err := os.Create(name)
 	if err != nil {
 		log.Fatal(err)
@@ -227,7 +234,7 @@ func WritePhoto(url string, fileName string, category_id int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	t := time.NewTimer(10 * time.Millisecond)
+	t := time.NewTimer(50 * time.Millisecond)
 	<-t.C
 }
 
@@ -287,4 +294,9 @@ func replaceLastRune(s string, new rune) string {
 		return s
 	}
 	return s[:len(s)-size] + string(new)
+}
+
+func sanitize(s string) string {
+	return strings.Replace(s, "/", " ", -1)
+
 }
