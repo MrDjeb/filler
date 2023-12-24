@@ -383,6 +383,6 @@ func replaceLastRune(s string, new rune) string {
 }
 
 func sanitize(s string) string {
-	return strings.Replace(s, "/", " ", -1)
+	return strings.Replace(strings.Replace(s, "/", " ", -1), "'", "", -1)
 
 }
