@@ -17,49 +17,133 @@ import (
 	"unicode/utf8"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/chai2010/webp"
 	"github.com/chromedp/cdproto/dom"
 	"github.com/chromedp/chromedp"
-	"github.com/kolesa-team/go-webp/encoder"
-	"github.com/kolesa-team/go-webp/webp"
 	uuid "github.com/satori/go.uuid"
 )
 
 /*
 	 	(1, 'Все товары', NULL),
-	    (2, 'Ноутбуки и планшеты', 1),
-	    (3, 'Планшеты', 2),
-	    (4, 'Ноутбуки', 2),
-	    (5, 'Бытовая техника', 1),
-	    (6, 'Холодильники', 5),
-	    (7, 'Стиральные машины', 5),
-	    (8, 'Пылесосы', 5),
+
+	    (2, 'Электроника', 1),
+	    (21, 'Планшеты', 2),
+	    (22, 'Ноутбуки', 2),
+		(23, 'Мониторы', 2),
+		(23, 'Наушники', 2),
+
+
+		(3, 'Бытовая техника', 1),
+	    (31, 'Холодильники', 3),
+	    (32, 'Стиральные машины', 3),
+	    (33, 'Пылесосы', 3),
+
+		(4, 'Музыкальные инструменты', 1),
+	    (41, 'Губные гармошки', 4),
+	    (42, 'Гитары', 4),
+	    (43, 'Барабаны', 4),
+		(44, 'Клавишные' 4),
+		(45, 'Смычковые музыкальные инструменты' 4),
+		(46, 'Духовые музыкальные инструменты' 4),
+	    (47, 'Виниловые пластинки', 4),
+
+		(5, 'Спорт и активный отдых', 1),
+	    (51, 'Велосипеды', 5),
+	    (52, 'Горные лыжи', 5),
+	    (53, 'Сноуборды', 5),
+		(54, 'Самокаты' 5),
+		(55, 'Веревки альпинистские' 5),
+		(56, 'Дартс' 5),
+
+		(6, 'Красота и уход', 1),
+		(61, 'Уход за лицом' 6),
+		(62, 'Средства по уходу за волосами' 6),
+		(63, 'Косметика для макияжа лица' 6),
+		(64, 'Макияж глаз' 6),
+
+		(7, 'Ювелирные изделия', 1),
+		(71, 'Кольца' 7),
+		(72, 'Серьги' 7),
+		(73, 'Браслеты' 7),
+		(74, 'Цепочки' 7),
+		(75, 'Колье' 7),
+
+		(8, 'Новогодние товары', 1),
+		(81, 'Елки искусственные' 8),
+		(82, 'Живые елки' 8),
+		(83, 'Аксессуары для елок' 8),
+		(84, 'Елочные украшения' 8),
+		(85, 'Новогодние гирлянды светодиодные' 8),
+
 		(9, 'Мебель', 1),
 		(91, 'Стулья', 9),
 		(92, 'Рабочие столы', 9),
 		(93, 'Диваны', 9),
 		(94, 'Кресла', 9),
+
 		(10, 'Канцелярия', 1),
 		(101, 'Тетради', 10),
 		(102, 'Письменные принадлежности', 10),
 		(103, 'Пеналы', 10),
 		(104, 'Клей', 10),
+
 		(11, 'Товары для геймеров', 1),
 		(111, 'Nintendo', 11),
 		(112, 'Xbox', 11),
 		(113, 'PlayStation', 11);
 */
 var catMap map[int]string = map[int]string{
-	6:   "holodilniki",
-	7:   "stiralnye-mashiny",
-	8:   "pylesosy",
-	91:  "stulya",
-	92:  "rabochie-stoly",
-	93:  "divany",
-	94:  "kresla",
+	21: "planshety",
+	22: "noutbuki",
+	23: "monitory",
+	24: "naushniki",
+
+	31: "holodilniki",
+	32: "stiralnye-mashiny",
+	33: "pylesosy",
+
+	41: "gubnye-garmoshki-i-aksessuary",
+	42: "gitary-i-gitarnoe-oborudovanie",
+	43: "udarnye",
+	44: "klavishnye",
+	45: "smychkovye-muzykalnye-instrumenty",
+	46: "duhovye-muzykalnye-instrumenty",
+	47: "vinilovye-plastinki",
+
+	51: "velosipedy",
+	52: "gornye-lyzhi",
+	53: "snoubordy",
+	54: "samokaty",
+	55: "verevki-alpinistskie",
+	56: "misheni-dlya-dartsa",
+
+	61: "uhod-za-licom",
+	62: "sredstva-po-uhodu-za-volosami",
+	63: "makiyazh-lica",
+	64: "makiyazh-glaz",
+
+	71: "kolca",
+	72: "sergi",
+	73: "braslety",
+	74: "cepochki",
+	75: "kole",
+
+	81: "iskusstvennye-elki",
+	82: "zhivye-elki",
+	83: "aksessuary-dlya-elok",
+	84: "elochnye-igrushki-i-ukrasheniya",
+	85: "novogodnie-girlyandy-svetodiodnye",
+
+	91: "stulya",
+	92: "rabochie-stoly",
+	93: "divany",
+	94: "kresla",
+
 	101: "tetradi",
 	102: "pismennye-prinadlezhnosti",
 	103: "penaly",
 	104: "kley-455773",
+
 	111: "nintendo",
 	112: "xbox",
 	113: "playstation",
@@ -155,7 +239,10 @@ func GetParse(category_id int) []string {
 		price := strings.Map(getNum, price_str)
 
 		photoName := strconv.Itoa(category_id) + "-" + id.String()
-		WritePhotoWebp(imgsrc, photoName, category_id)
+		err := WritePhotoWebp(imgsrc, photoName, category_id)
+		if err != nil {
+			return
+		}
 		cleanName := sanitize(name)
 		row := fmt.Sprintf("('%s', '%s', %s, '%s', '%s', 4.%d, %d),",
 			id.String(), cleanName, price, photoName, "Самый лучший среди товаров на рынке "+cleanName, rating, category_id)
@@ -180,16 +267,17 @@ func Fill() {
 		log.Fatal(err)
 	}
 
-	for k, _ := range catMap {
+	for k := range catMap {
 		preCMD := "INSERT INTO product (id, name, price, imgsrc, description, rating, category_id) VALUES\n"
-		f.WriteString(preCMD)
 		lines := GetParse(k)
+		f.WriteString(preCMD)
 		for _, line := range lines {
 			_, err := f.WriteString(line + "\n")
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
+		fmt.Println("category id done: ", k)
 	}
 }
 
@@ -238,36 +326,32 @@ func WritePhoto(url string, fileName string, category_id int) {
 	<-t.C
 }
 
-func WritePhotoWebp(url string, fileName string, category_id int) {
+func WritePhotoWebp(url string, fileName string, category_id int) error {
 	response, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer response.Body.Close()
 
 	img, err := jpeg.Decode(response.Body)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 
 	name := "./images/" + fileName + filepath.Ext(url)
 	output, err := os.Create(name + ".webp")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer output.Close()
 
-	options, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 75)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	if err := webp.Encode(output, img, options); err != nil {
-		log.Fatalln(err)
+	if err := webp.Encode(output, img, &webp.Options{Lossless: false, Quality: 70}); err != nil {
+		return err
 	}
 
 	t := time.NewTimer(10 * time.Millisecond)
 	<-t.C
+	return nil
 }
 
 func main() {
