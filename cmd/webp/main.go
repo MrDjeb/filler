@@ -1,5 +1,6 @@
 package main
 
+/*
 import (
 	"image/jpeg"
 	"log"
@@ -34,3 +35,4 @@ func main() {
 		log.Fatalln(err)
 	}
 }
+*/
